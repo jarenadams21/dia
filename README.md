@@ -25,3 +25,9 @@
   },
   "required": ["id", "filename", "fileSize", "fileType", "createdAt", "filePath"]
 }
+
+
+## Useful Git Hacks
+git filter-branch --force --index-filter 'git rm --cached --ignore-unmatch media-blob/media/bill-gates-deposition.mp3' --prune-empty --tag-name-filter cat -- --all
+
+--> This removed all mentions of the large mp3 file from previous commits (dangerous, do with caution)
