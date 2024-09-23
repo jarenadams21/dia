@@ -1,81 +1,75 @@
+// DownloadManager.swift
+
 import Foundation
 import Combine
 
 class DownloadManager: ObservableObject {
     static let shared = DownloadManager()
-    
-    @Published var downloadProgress: Double = 0.0
-    @Published var isDownloading: Bool = false
 
-    func download(mediaFile: MediaFile, completion: @escaping () -> Void) {
+    @Published var downloadProgress: Double = 0.0
+
+    func download(mediaFile: MediaFile, progressHandler: @escaping (Double) -> Void, completion: @escaping (Bool) -> Void) {
         guard let url = URL(string: mediaFile.url) else {
-            print("Invalid media file URL")
+            print("Invalid media file URL: \(mediaFile.url)")
+            completion(false)
             return
         }
 
-        let task = URLSession.shared.downloadTask(with: url) { (tempURL, response, error) in
-            guard let tempURL = tempURL, error == nil else {
-                print("Error downloading file: \(error?.localizedDescription ?? "Unknown error")")
+        let destinationURL = getDestinationURL(for: mediaFile.name)
+
+        // Check if the file is already downloaded
+        if FileManager.default.fileExists(atPath: destinationURL.path) {
+            print("File already exists at path: \(destinationURL.path)")
+            completion(true)
+            return
+        }
+
+        let task = URLSession.shared.downloadTask(with: url) { tempURL, response, error in
+            if let error = error {
+                print("Error downloading file: \(error.localizedDescription)")
+                completion(false)
                 return
             }
 
-            // Move downloaded file to the documents directory
-            let destinationURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(mediaFile.name)
-            do {
-                try FileManager.default.moveItem(at: tempURL, to: destinationURL)
-                DispatchQueue.main.async {
-                    completion()
-                }
-            } catch {
-                print("Error moving downloaded file: \(error.localizedDescription)")
-            }
-        }
-
-        task.resume()
-    }
-
-    func batchDownload(mediaFiles: [MediaFile], completion: @escaping (Bool) -> Void) {
-        var totalFiles = mediaFiles.count
-        var completedFiles = 0
-        
-        for mediaFile in mediaFiles {
-            download(mediaFile: mediaFile) {
-                completedFiles += 1
-                self.downloadProgress = Double(completedFiles) / Double(totalFiles)
-                
-                if completedFiles == totalFiles {
-                    completion(true)  // All files downloaded
-                }
-            }
-        }
-    }
-
-    func downloadWithProgress(url: URL, fileName: String, completion: @escaping () -> Void) {
-        var observation: NSKeyValueObservation?
-        
-        let task = URLSession.shared.downloadTask(with: url) { (tempURL, response, error) in
-            guard let tempURL = tempURL, error == nil else {
-                print("Error downloading file: \(error?.localizedDescription ?? "Unknown error")")
+            guard let tempURL = tempURL else {
+                print("No temporary file URL")
+                completion(false)
                 return
             }
 
-            let destinationURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(fileName)
             do {
                 try FileManager.default.moveItem(at: tempURL, to: destinationURL)
+                print("File successfully moved to \(destinationURL.path)")
                 DispatchQueue.main.async {
-                    completion()
+                    completion(true)
                 }
             } catch {
                 print("Error moving downloaded file: \(error.localizedDescription)")
+                DispatchQueue.main.async {
+                    completion(false)
+                }
             }
         }
 
-        observation = task.progress.observe(\.fractionCompleted) { progress, _ in
+        // Observe download progress
+        let observation = task.progress.observe(\.fractionCompleted) { progress, _ in
             DispatchQueue.main.async {
                 self.downloadProgress = progress.fractionCompleted
+                progressHandler(progress.fractionCompleted)
             }
         }
 
         task.resume()
+    }
+
+    func isDownloaded(mediaFile: MediaFile) -> Bool {
+        let destinationURL = getDestinationURL(for: mediaFile.name)
+        return FileManager.default.fileExists(atPath: destinationURL.path)
+    }
+
+    public func getDestinationURL(for fileName: String) -> URL {
+        return FileManager.default
+            .urls(for: .documentDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent(fileName)
     }
 }

@@ -10,3 +10,10 @@ struct MediaFile: Identifiable, Codable {
         case name, url, type
     }
 }
+
+enum DownloadState {
+    case notStarted
+    case inProgress(progress: Double)
+    case completed
+    case failed
+}

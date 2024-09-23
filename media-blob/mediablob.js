@@ -1,70 +1,72 @@
-// mediablob.js
-// Media storage for local serving
+// media-blob.js
 
 const express = require('express');
 const cors = require('cors');
-const morgan = require('morgan'); // Import morgan for logging
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+const morgan = require('morgan');
 
 const app = express();
 const port = 3000;
 
-// Use morgan to log all requests
+// Use morgan for logging
 app.use(morgan('combined'));
 
-// Use CORS to allow cross-origin requests
+// Enable CORS
 app.use(cors());
 
 // Serve static files from the 'media' directory
-app.use('/media', express.static('media'));
+app.use('/media', express.static(path.join(__dirname, 'media')));
 
 // Endpoint to list all media files
 app.get('/media-list', (req, res) => {
-  const directoryPath = path.join(__dirname, 'media');
+    const directoryPath = path.join(__dirname, 'media');
 
-  fs.readdir(directoryPath, (err, files) => {
-    if (err) {
-      console.error('Error scanning media directory:', err); // Log the error
-      return res.status(500).send('Unable to scan media directory.');
-    }
+    fs.readdir(directoryPath, (err, files) => {
+        if (err) {
+            console.error('Error scanning media directory:', err);
+            return res.status(500).send('Unable to scan media directory.');
+        }
 
-    const mediaFiles = files.map((file) => ({
-      name: file,
-      url: `http://${getLocalIPAddress()}:${port}/media/${encodeURIComponent(file)}`,
-      type: getFileType(file),
-    }));
+        // Filter out hidden files and unsupported formats
+        const supportedExtensions = ['mp3', 'mp4', 'mov'];
+        const visibleFiles = files.filter(file => {
+            const ext = path.extname(file).toLowerCase().substring(1);
+            return !file.startsWith('.') && supportedExtensions.includes(ext);
+        });
 
-    console.log(`Served media list with ${mediaFiles.length} files.`); // Log the action
+        const mediaFiles = visibleFiles.map(file => ({
+            name: file,
+            url: `http://${getLocalIPAddress()}:${port}/media/${encodeURIComponent(file)}`,
+            type: getFileType(file),
+        }));
 
-    res.json(mediaFiles);
-  });
+        console.log(`Served media list with ${mediaFiles.length} files.`);
+        res.json(mediaFiles);
+    });
 });
 
 // Helper function to get local IP address
 function getLocalIPAddress() {
-  const interfaces = os.networkInterfaces();
-  for (const iface of Object.values(interfaces)) {
-    for (const alias of iface) {
-      if (alias.family === 'IPv4' && !alias.internal) {
-        return alias.address;
-      }
+    const interfaces = os.networkInterfaces();
+    for (const iface of Object.values(interfaces)) {
+        for (const alias of iface) {
+            if (alias.family === 'IPv4' && !alias.internal) {
+                return alias.address;
+            }
+        }
     }
-  }
 }
 
 // Helper function to determine file type
 function getFileType(filename) {
-    const ext = filename.split('.').pop().toLowerCase();
-    if (['mp4', 'mov', 'avi'].includes(ext)) return 'video';
-    if (['mp3', 'aac', 'wav', 'm4a'].includes(ext)) return 'audio';
-    if (['jpg', 'jpeg', 'png', 'gif'].includes(ext)) return 'image';
-    if (['pdf'].includes(ext)) return 'document';
+    const ext = path.extname(filename).toLowerCase();
+    if (['.mp4', '.mov'].includes(ext)) return 'video';
+    if (['.mp3'].includes(ext)) return 'audio';
     return 'other';
-  }
+}
 
-// Start the server
 app.listen(port, () => {
-  console.log(`Media server running at http://${getLocalIPAddress()}:${port}`);
+    console.log(`Media server running at http://${getLocalIPAddress()}:${port}`);
 });
