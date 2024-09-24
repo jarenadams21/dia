@@ -15,12 +15,10 @@
 		11BA448F2CA0EC40008EFEE9 /* mediablobUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11BA448E2CA0EC40008EFEE9 /* mediablobUITests.swift */; };
 		11BA44912CA0EC40008EFEE9 /* mediablobUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11BA44902CA0EC40008EFEE9 /* mediablobUITestsLaunchTests.swift */; };
 		11BA449E2CA0EDDB008EFEE9 /* MediaFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11BA449D2CA0EDDB008EFEE9 /* MediaFile.swift */; };
-		11BA44A02CA0EDE6008EFEE9 /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11BA449F2CA0EDE6008EFEE9 /* NetworkManager.swift */; };
 		11BA44A22CA0EDFD008EFEE9 /* DownloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11BA44A12CA0EDFD008EFEE9 /* DownloadManager.swift */; };
-		11BA44A42CA0EEF4008EFEE9 /* QuickLookPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11BA44A32CA0EEF4008EFEE9 /* QuickLookPreview.swift */; };
-		11BA44A62CA0F484008EFEE9 /* VideoPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11BA44A52CA0F484008EFEE9 /* VideoPlayer.swift */; };
 		11BA44A82CA10CF2008EFEE9 /* AudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11BA44A72CA10CF2008EFEE9 /* AudioPlayer.swift */; };
 		11BA44AA2CA10EDE008EFEE9 /* AudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11BA44A92CA10EDE008EFEE9 /* AudioManager.swift */; };
+		11BA44B12CA23584008EFEE9 /* GlassArch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11BA44B02CA23584008EFEE9 /* GlassArch.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,12 +51,11 @@
 		11BA448E2CA0EC40008EFEE9 /* mediablobUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = mediablobUITests.swift; sourceTree = "<group>"; };
 		11BA44902CA0EC40008EFEE9 /* mediablobUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = mediablobUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		11BA449D2CA0EDDB008EFEE9 /* MediaFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaFile.swift; sourceTree = "<group>"; };
-		11BA449F2CA0EDE6008EFEE9 /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
 		11BA44A12CA0EDFD008EFEE9 /* DownloadManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadManager.swift; sourceTree = "<group>"; };
-		11BA44A32CA0EEF4008EFEE9 /* QuickLookPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickLookPreview.swift; sourceTree = "<group>"; };
-		11BA44A52CA0F484008EFEE9 /* VideoPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlayer.swift; sourceTree = "<group>"; };
 		11BA44A72CA10CF2008EFEE9 /* AudioPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayer.swift; sourceTree = "<group>"; };
 		11BA44A92CA10EDE008EFEE9 /* AudioManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioManager.swift; sourceTree = "<group>"; };
+		11BA44B02CA23584008EFEE9 /* GlassArch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassArch.swift; sourceTree = "<group>"; };
+		11BA44B22CA239AC008EFEE9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -109,18 +106,17 @@
 		11BA44712CA0EC3F008EFEE9 /* mediablob */ = {
 			isa = PBXGroup;
 			children = (
+				11BA44B22CA239AC008EFEE9 /* Info.plist */,
 				11BA44722CA0EC3F008EFEE9 /* mediablobApp.swift */,
 				11BA44742CA0EC3F008EFEE9 /* ContentView.swift */,
 				11BA44762CA0EC40008EFEE9 /* Assets.xcassets */,
 				11BA447B2CA0EC40008EFEE9 /* mediablob.entitlements */,
 				11BA44782CA0EC40008EFEE9 /* Preview Content */,
 				11BA449D2CA0EDDB008EFEE9 /* MediaFile.swift */,
-				11BA449F2CA0EDE6008EFEE9 /* NetworkManager.swift */,
 				11BA44A12CA0EDFD008EFEE9 /* DownloadManager.swift */,
-				11BA44A32CA0EEF4008EFEE9 /* QuickLookPreview.swift */,
-				11BA44A52CA0F484008EFEE9 /* VideoPlayer.swift */,
 				11BA44A72CA10CF2008EFEE9 /* AudioPlayer.swift */,
 				11BA44A92CA10EDE008EFEE9 /* AudioManager.swift */,
+				11BA44B02CA23584008EFEE9 /* GlassArch.swift */,
 			);
 			path = mediablob;
 			sourceTree = "<group>";
@@ -280,9 +276,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				11BA44A62CA0F484008EFEE9 /* VideoPlayer.swift in Sources */,
-				11BA44A02CA0EDE6008EFEE9 /* NetworkManager.swift in Sources */,
-				11BA44A42CA0EEF4008EFEE9 /* QuickLookPreview.swift in Sources */,
+				11BA44B12CA23584008EFEE9 /* GlassArch.swift in Sources */,
 				11BA44A82CA10CF2008EFEE9 /* AudioPlayer.swift in Sources */,
 				11BA44A22CA0EDFD008EFEE9 /* DownloadManager.swift in Sources */,
 				11BA44752CA0EC3F008EFEE9 /* ContentView.swift in Sources */,
@@ -456,7 +450,7 @@
 				DEVELOPMENT_TEAM = H8DP3H8L3Y;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "";
+				INFOPLIST_FILE = mediablob/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -486,7 +480,7 @@
 				DEVELOPMENT_TEAM = H8DP3H8L3Y;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "";
+				INFOPLIST_FILE = mediablob/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

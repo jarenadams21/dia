@@ -1,24 +1,25 @@
 import SwiftUI
 import AVFoundation
+import MediaPlayer
 
 struct AudioPlayerView: View {
-    @Environment(\.presentationMode) var presentationMode
-    let url: URL
     @State private var player: AVAudioPlayer?
     @State private var isPlaying = false
     @State private var playbackProgress: Double = 0.0
     @State private var playbackTimer: Timer?
 
+    let audioURL: URL
+
     var body: some View {
         VStack(spacing: 20) {
-            Text(url.lastPathComponent)
-                .font(.custom("Courier", size: 18)) // 90s style monospace font
+            Text(audioURL.lastPathComponent)
+                .font(.custom("Courier", size: 18))
                 .foregroundColor(.neonGreen)
                 .padding()
 
             // Playback slider
             Slider(value: $playbackProgress, in: 0...1, onEditingChanged: sliderChanged)
-                .accentColor(.brightPink) // Neon slider color
+                .accentColor(.brightPink)
                 .padding()
 
             HStack(spacing: 40) {
@@ -49,24 +50,27 @@ struct AudioPlayerView: View {
         }
         .onAppear(perform: setupPlayer)
         .onDisappear {
-            player?.stop()
+            stopAudio()
             savePlaybackProgress()
         }
-        .background(Color.black.opacity(0.85)) // 90s web background
-        .cornerRadius(20) // Boxy retro feel
+        .background(Color.black.opacity(0.85))
+        .cornerRadius(20)
         .padding()
         .overlay(
             RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.neonGreen, lineWidth: 4) // Neon green border
+                .stroke(Color.neonGreen, lineWidth: 4)
         )
     }
 
     func setupPlayer() {
         do {
-            player = try AVAudioPlayer(contentsOf: url)
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [])
+            try AVAudioSession.sharedInstance().setActive(true)
+
+            player = try AVAudioPlayer(contentsOf: audioURL)
             player?.prepareToPlay()
             restorePlaybackProgress()
-            startTimer()
+            setupNowPlaying()
         } catch {
             print("Audio player setup failed: \(error.localizedDescription)")
         }
@@ -101,7 +105,8 @@ struct AudioPlayerView: View {
     func startTimer() {
         playbackTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
             guard let player = player else { return }
-            playbackProgress = player.currentTime / (player.duration)
+            playbackProgress = player.currentTime / player.duration
+            updateNowPlaying()
         }
     }
 
@@ -111,13 +116,51 @@ struct AudioPlayerView: View {
 
     func savePlaybackProgress() {
         let currentTime = player?.currentTime ?? 0
-        UserDefaults.standard.set(currentTime, forKey: url.lastPathComponent)
+        UserDefaults.standard.set(currentTime, forKey: audioURL.lastPathComponent)
     }
 
     func restorePlaybackProgress() {
-        let savedTime = UserDefaults.standard.double(forKey: url.lastPathComponent)
+        let savedTime = UserDefaults.standard.double(forKey: audioURL.lastPathComponent)
         player?.currentTime = savedTime
         playbackProgress = savedTime / (player?.duration ?? 1)
+    }
+
+    func setupNowPlaying() {
+        var nowPlayingInfo = [String: Any]()
+        nowPlayingInfo[MPMediaItemPropertyTitle] = audioURL.lastPathComponent
+        nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = player?.currentTime
+        nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = player?.duration
+        nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = player?.isPlaying ?? false ? 1.0 : 0.0
+
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+
+        UIApplication.shared.beginReceivingRemoteControlEvents()
+
+        let commandCenter = MPRemoteCommandCenter.shared()
+
+        commandCenter.playCommand.addTarget { _ in
+            if let player = player, !player.isPlaying {
+                player.play()
+                return .success
+            }
+            return .commandFailed
+        }
+
+        commandCenter.pauseCommand.addTarget { _ in
+            if let player = player, player.isPlaying {
+                player.pause()
+                return .success
+            }
+            return .commandFailed
+        }
+    }
+
+    func updateNowPlaying() {
+        var nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo ?? [String: Any]()
+        nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = player?.currentTime
+        nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = player?.isPlaying ?? false ? 1.0 : 0.0
+
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
     }
 }
 
